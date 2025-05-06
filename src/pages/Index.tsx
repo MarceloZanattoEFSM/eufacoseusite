@@ -1,13 +1,35 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import React, { useEffect } from 'react';
+import Navbar from '@/components/Navbar';
+import HeroSection from '@/components/HeroSection';
+import BenefitsSection from '@/components/BenefitsSection';
+import AudienceSection from '@/components/AudienceSection';
+import HowItWorksSection from '@/components/HowItWorksSection';
+import FAQSection from '@/components/FAQSection';
+import TestimonialsSection from '@/components/TestimonialsSection';
+import BriefingForm from '@/components/BriefingForm';
+import Footer from '@/components/Footer';
 
 const Index = () => {
+  useEffect(() => {
+    // Atualizar título da página
+    document.title = "eufacoseu.site | Seu site pronto em até 2 dias";
+  }, []);
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
-      </div>
-    </div>
+    <>
+      <Navbar />
+      <main className="overflow-x-hidden">
+        <HeroSection />
+        <BenefitsSection />
+        <AudienceSection />
+        <HowItWorksSection />
+        <FAQSection />
+        <TestimonialsSection />
+        <BriefingForm />
+      </main>
+      <Footer />
+    </>
   );
 };
 

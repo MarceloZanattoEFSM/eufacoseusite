@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -96,6 +97,38 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-white text-eufaco-black font-inter;
   }
+  
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+.section {
+  @apply py-16 md:py-20 px-4 md:px-8 max-w-7xl mx-auto;
+}
+
+.container-narrow {
+  @apply max-w-3xl mx-auto;
+}
+
+.heading-xl {
+  @apply text-4xl sm:text-5xl md:text-6xl font-bold leading-tight;
+}
+
+.heading-lg {
+  @apply text-3xl sm:text-4xl font-bold leading-tight;
+}
+
+.heading-md {
+  @apply text-2xl sm:text-3xl font-bold leading-tight; 
+}
+
+.btn-primary {
+  @apply bg-eufaco-blue hover:bg-blue-600 text-white font-medium py-3 px-8 rounded-lg transition-all duration-200 inline-block text-center;
+}
+
+.btn-secondary {
+  @apply bg-white hover:bg-gray-100 text-eufaco-blue border border-eufaco-blue font-medium py-3 px-8 rounded-lg transition-all duration-200 inline-block text-center;
 }
