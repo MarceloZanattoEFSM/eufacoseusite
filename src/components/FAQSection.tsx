@@ -45,11 +45,11 @@ const FAQSection = () => {
     },
     {
       question: "Posso pedir mudanças?",
-      answer: "Sim. Você tem até 7 dias após a entrega pra sugerir ajustes."
+      answer: "Sim. Você tem até 7 dias após a entrega pra sugerir ajustes. Após esse tempo, será cobrado R$50,00 por mudança."
     },
     {
       question: "E se eu quiser cancelar depois?",
-      answer: "Só parar de pagar. Sem multa ou contrato."
+      answer: "Só parar de pagar. Sem multa ou contrato. Mas é importante ressaltar que o site ficará fora e não entregamos nenhum código fonte."
     }
   ];
 

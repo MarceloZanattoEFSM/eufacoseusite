@@ -9,6 +9,7 @@ import FAQSection from '@/components/FAQSection';
 import TestimonialsSection from '@/components/TestimonialsSection';
 import BriefingForm from '@/components/BriefingForm';
 import Footer from '@/components/Footer';
+import WhatsAppButton from '@/components/WhatsAppButton';
 
 const Index = () => {
   useEffect(() => {
@@ -29,6 +30,7 @@ const Index = () => {
         <BriefingForm />
       </main>
       <Footer />
+      <WhatsAppButton />
     </>
   );
 };

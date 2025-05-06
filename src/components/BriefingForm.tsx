@@ -112,6 +112,18 @@ const BriefingForm = () => {
               />
             </div>
             
+            {/* Campo: Endereço (Novo campo) */}
+            <div>
+              <label htmlFor="address" className="block text-sm font-medium mb-1">
+                Endereço (opcional)
+              </label>
+              <textarea
+                id="address"
+                rows={2}
+                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue"
+              />
+            </div>
+            
             {/* Campo: Número WhatsApp */}
             <div>
               <label htmlFor="whatsapp" className="block text-sm font-medium mb-1">
@@ -198,6 +210,11 @@ const BriefingForm = () => {
               >
                 {isSubmitting ? "Enviando..." : "Enviar briefing"}
               </button>
+              
+              {/* Mensagem após o formulário */}
+              <p className="text-center text-gray-600 mt-6">
+                Após o envio do formulário, você receberá as próximas instruções e o acompanhamento diretamente pelo WhatsApp.
+              </p>
             </div>
           </div>
         </form>
