@@ -17,7 +17,7 @@ const HowItWorksSection = () => {
     },
     {
       number: 4,
-      text: "Gostou? Aí sim você paga os R$99"
+      text: "Gostou? Aí sim você paga os R$99,00"
     },
     {
       number: 5,
