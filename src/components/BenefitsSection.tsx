@@ -13,7 +13,7 @@ const BenefitsSection = () => {
     },
     {
       icon: "✅",
-      text: "Só R$99 por mês com tudo incluso"
+      text: "Só R$99,00 por mês com tudo incluso"
     },
     {
       icon: "✅", 
