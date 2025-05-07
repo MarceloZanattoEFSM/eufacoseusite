@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
-import { Whatsapp } from 'lucide-react';
+import { MessageCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const WhatsAppButton = () => {
@@ -46,7 +46,7 @@ const WhatsAppButton = () => {
         isPulsing && "animate-[pulse_2s_cubic-bezier(0.4,0,0.6,1)_infinite]"
       )}
     >
-      <Whatsapp size={32} />
+      <MessageCircle size={32} />
     </a>
   );
 };
