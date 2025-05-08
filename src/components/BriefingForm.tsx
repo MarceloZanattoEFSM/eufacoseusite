@@ -1,31 +1,120 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { Checkbox } from "@/components/ui/checkbox";
+import { Link } from "react-router-dom";
 
 const BriefingForm = () => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formSubmitted, setFormSubmitted] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    description: '',
+    testimonials: '',
+    services: '',
+    faq: '',
+    benefits: '',
+    address: '',
+    whatsapp: '',
+    email: '',
+    cnpj: '',
+    observations: '',
+    colors: '',
+    socialMedia: '',
+    termsAccepted: false
+  });
   
-  const handleSubmit = (e: React.FormEvent) => {
+  // Load form data from localStorage on component mount
+  useEffect(() => {
+    const savedData = localStorage.getItem('briefingFormData');
+    if (savedData) {
+      setFormData(JSON.parse(savedData));
+    }
+  }, []);
+  
+  // Save form data to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('briefingFormData', JSON.stringify(formData));
+  }, [formData]);
+  
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { id, value } = e.target;
+    setFormData({ ...formData, [id]: value });
+  };
+  
+  const handleCheckboxChange = (checked: boolean) => {
+    setFormData({ ...formData, termsAccepted: checked });
+  };
+  
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!formData.termsAccepted) {
+      toast({
+        title: "Termo de aceite obrigatório",
+        description: "Por favor, aceite os termos para continuar.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     setIsSubmitting(true);
     
-    // Simulação de envio do formulário
-    setTimeout(() => {
-      toast({
-        title: "Briefing enviado com sucesso!",
-        description: "Logo entraremos em contato com você.",
+    try {
+      // Send data to the webhook
+      const response = await fetch('https://hook.us1.make.com/fyrsrjek2fwshgqk56xyf49540hga4w1', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
       });
+      
+      if (response.ok) {
+        // Clear localStorage after successful submission
+        localStorage.removeItem('briefingFormData');
+        
+        // Show success toast
+        toast({
+          title: "Briefing enviado com sucesso!",
+          description: "Logo entraremos em contato com você.",
+        });
+        
+        // Show success message
+        setFormSubmitted(true);
+      } else {
+        throw new Error('Falha ao enviar o formulário');
+      }
+    } catch (error) {
+      toast({
+        title: "Erro ao enviar",
+        description: "Houve um problema ao enviar seu briefing. Seus dados foram salvos localmente.",
+        variant: "destructive"
+      });
+    } finally {
       setIsSubmitting(false);
-      
-      // Limpar os campos do formulário (opcional)
-      const form = e.target as HTMLFormElement;
-      form.reset();
-      
-      // Scroll para o topo
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }, 1500);
+    }
   };
+
+  if (formSubmitted) {
+    return (
+      <section id="briefing" className="section">
+        <div className="max-w-3xl mx-auto">
+          <div className="bg-white shadow-md rounded-lg p-8 text-center">
+            <h2 className="heading-lg mb-6">Obrigado pelo seu briefing!</h2>
+            <p className="text-xl mb-4">Recebemos suas informações e entraremos em contato em breve através do WhatsApp.</p>
+            <p className="text-gray-600">Nossa equipe já começou a trabalhar no seu site.</p>
+            <div className="mt-8">
+              <a href="#" className="btn-primary text-lg py-3 px-6" onClick={() => window.scrollTo(0, 0)}>
+                Voltar ao topo
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section id="briefing" className="section">
@@ -47,6 +136,8 @@ const BriefingForm = () => {
                 type="text"
                 className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue"
                 required
+                value={formData.name}
+                onChange={handleChange}
               />
             </div>
             
@@ -60,6 +151,22 @@ const BriefingForm = () => {
                 rows={4}
                 className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue"
                 required
+                value={formData.description}
+                onChange={handleChange}
+              />
+            </div>
+            
+            {/* Campo: Cores e Identidade visual */}
+            <div>
+              <label htmlFor="colors" className="block text-sm font-medium mb-1">
+                Cores e Identidade visual de preferência (opcional)
+              </label>
+              <textarea
+                id="colors"
+                rows={3}
+                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue"
+                value={formData.colors}
+                onChange={handleChange}
               />
             </div>
             
@@ -72,6 +179,8 @@ const BriefingForm = () => {
                 id="testimonials"
                 rows={3}
                 className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue"
+                value={formData.testimonials}
+                onChange={handleChange}
               />
             </div>
             
@@ -85,6 +194,23 @@ const BriefingForm = () => {
                 rows={3}
                 className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue"
                 required
+                value={formData.services}
+                onChange={handleChange}
+              />
+            </div>
+            
+            {/* Campo: Redes Sociais */}
+            <div>
+              <label htmlFor="socialMedia" className="block text-sm font-medium mb-1">
+                Redes Sociais (opcional)
+              </label>
+              <textarea
+                id="socialMedia"
+                rows={3}
+                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue"
+                value={formData.socialMedia}
+                onChange={handleChange}
+                placeholder="Instagram: @suaconta, Facebook: /suapagina, etc."
               />
             </div>
             
@@ -97,6 +223,8 @@ const BriefingForm = () => {
                 id="faq"
                 rows={3}
                 className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue"
+                value={formData.faq}
+                onChange={handleChange}
               />
             </div>
             
@@ -109,6 +237,8 @@ const BriefingForm = () => {
                 id="benefits"
                 rows={3}
                 className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue"
+                value={formData.benefits}
+                onChange={handleChange}
               />
             </div>
             
@@ -121,6 +251,8 @@ const BriefingForm = () => {
                 id="address"
                 rows={2}
                 className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue"
+                value={formData.address}
+                onChange={handleChange}
               />
             </div>
             
@@ -134,6 +266,8 @@ const BriefingForm = () => {
                 type="tel"
                 className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue"
                 required
+                value={formData.whatsapp}
+                onChange={handleChange}
               />
             </div>
             
@@ -147,6 +281,8 @@ const BriefingForm = () => {
                 type="email"
                 className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue"
                 required
+                value={formData.email}
+                onChange={handleChange}
               />
             </div>
             
@@ -159,6 +295,8 @@ const BriefingForm = () => {
                 id="cnpj"
                 type="text"
                 className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue"
+                value={formData.cnpj}
+                onChange={handleChange}
               />
             </div>
             
@@ -173,6 +311,9 @@ const BriefingForm = () => {
                 accept="image/*"
                 className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue"
               />
+              <p className="text-xs text-gray-500 mt-1">
+                Para envio de arquivos, salve primeiro o formulário e depois nos envie pelo WhatsApp
+              </p>
             </div>
             
             {/* Campo: Upload de outras fotos */}
@@ -187,6 +328,9 @@ const BriefingForm = () => {
                 accept="image/*"
                 className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue"
               />
+              <p className="text-xs text-gray-500 mt-1">
+                Para envio de arquivos, salve primeiro o formulário e depois nos envie pelo WhatsApp
+              </p>
             </div>
             
             {/* Campo: Demais observações */}
@@ -198,7 +342,24 @@ const BriefingForm = () => {
                 id="observations"
                 rows={4}
                 className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue"
+                value={formData.observations}
+                onChange={handleChange}
               />
+            </div>
+            
+            {/* Termo de Aceite */}
+            <div className="flex items-start space-x-3 pt-2">
+              <Checkbox 
+                id="termsAccepted" 
+                checked={formData.termsAccepted}
+                onCheckedChange={handleCheckboxChange}
+              />
+              <label
+                htmlFor="termsAccepted"
+                className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                Concordo com os <Link to="/terms" className="text-eufaco-blue hover:underline" target="_blank">termos de aceite</Link> *
+              </label>
             </div>
             
             {/* Botão de envio */}
