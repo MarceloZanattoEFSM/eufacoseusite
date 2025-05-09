@@ -29,7 +29,9 @@ const BriefingForm = () => {
     colors: '',
     socialMedia: '',
     theme: 'light',
-    termsAccepted: false
+    termsAccepted: false,
+    logo: '',
+    photos: [] as string[]
   });
   
   // For file uploads
