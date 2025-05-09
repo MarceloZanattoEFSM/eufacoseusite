@@ -24,10 +24,10 @@ const FAQItem = ({ question, answer }: FAQItemProps) => {
       <div 
         className={cn(
           "overflow-hidden transition-all duration-300", 
-          isOpen ? "max-h-40 pt-4" : "max-h-0"
+          isOpen ? "max-h-96 pt-4" : "max-h-0"
         )}
       >
-        <p className="text-gray-600">{answer}</p>
+        <p className="text-gray-600" dangerouslySetInnerHTML={{ __html: answer }}></p>
       </div>
     </div>
   );
@@ -50,6 +50,14 @@ const FAQSection = () => {
     {
       question: "E se eu quiser cancelar depois?",
       answer: "Só parar de pagar. Sem multa ou contrato. Mas é importante ressaltar que o site ficará fora e não entregamos nenhum código fonte."
+    },
+    {
+      question: "Fazem blog, e-commerce ou sistemas?",
+      answer: "Não, aqui só fazemos Landing pages e sites simples com o objetivo das pessoas entrarem com contato por e-mail ou WhatsApp. Caso queria algo mais elaborado, entre em contato com a nossa agência parceira <a href='https://eufacoseu.marketing/?utm_source=cliente&utm_medium=landing_page&utm_campaign=eu_faco_seu_site&utm_id=referencia' target='_blank' class='text-eufaco-blue hover:underline'>Eu Faço Seu Marketing</a>."
+    },
+    {
+      question: "Quantas páginas pode ter o meu site?",
+      answer: "Por padrão fazemos apenas 1 página, que é o conceito de Landing Page, mas você pode pedir mais páginas sim! Tem um acréscimo de R$50,00 por página solicitada. Não se esqueça de solicitar isso no campo \"Demais Observações\", detalhando exatamente como deseja."
     }
   ];
 

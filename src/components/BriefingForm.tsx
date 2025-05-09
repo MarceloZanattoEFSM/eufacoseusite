@@ -3,6 +3,13 @@ import React, { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Checkbox } from "@/components/ui/checkbox";
 import { Link } from "react-router-dom";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select";
 
 const BriefingForm = () => {
   const { toast } = useToast();
@@ -22,8 +29,13 @@ const BriefingForm = () => {
     observations: '',
     colors: '',
     socialMedia: '',
+    theme: 'light',
     termsAccepted: false
   });
+  
+  // Form refs para os campos de upload
+  const logoRef = React.useRef<HTMLInputElement>(null);
+  const photosRef = React.useRef<HTMLInputElement>(null);
   
   // Load form data from localStorage on component mount
   useEffect(() => {
@@ -41,6 +53,10 @@ const BriefingForm = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target;
     setFormData({ ...formData, [id]: value });
+  };
+  
+  const handleSelectChange = (value: string) => {
+    setFormData({ ...formData, theme: value });
   };
   
   const handleCheckboxChange = (checked: boolean) => {
@@ -62,13 +78,29 @@ const BriefingForm = () => {
     setIsSubmitting(true);
     
     try {
+      // Criar um FormData para envio de arquivos
+      const formDataToSend = new FormData();
+      
+      // Adicionar todos os campos do formulário ao FormData
+      Object.entries(formData).forEach(([key, value]) => {
+        formDataToSend.append(key, value as string);
+      });
+      
+      // Adicionar arquivos se existirem
+      if (logoRef.current?.files && logoRef.current.files[0]) {
+        formDataToSend.append('logo', logoRef.current.files[0]);
+      }
+      
+      if (photosRef.current?.files && photosRef.current.files.length > 0) {
+        Array.from(photosRef.current.files).forEach((file, index) => {
+          formDataToSend.append(`photo_${index}`, file);
+        });
+      }
+      
       // Send data to the webhook
       const response = await fetch('https://hook.us1.make.com/fyrsrjek2fwshgqk56xyf49540hga4w1', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
+        body: formDataToSend, // Enviando FormData em vez de JSON
       });
       
       if (response.ok) {
@@ -124,7 +156,7 @@ const BriefingForm = () => {
           <p className="text-xl text-gray-600">Preencha o briefing abaixo e a gente começa hoje mesmo.</p>
         </div>
         
-        <form onSubmit={handleSubmit} className="bg-white shadow-md rounded-lg p-6 md:p-8">
+        <form onSubmit={handleSubmit} className="bg-white shadow-md rounded-lg p-6 md:p-8" encType="multipart/form-data">
           <div className="space-y-6">
             {/* Campo: Nome da Empresa/Pessoa */}
             <div>
@@ -168,6 +200,25 @@ const BriefingForm = () => {
                 value={formData.colors}
                 onChange={handleChange}
               />
+            </div>
+            
+            {/* Campo: Preferência de Tema */}
+            <div>
+              <label htmlFor="theme" className="block text-sm font-medium mb-1">
+                Preferência de tema
+              </label>
+              <Select
+                onValueChange={handleSelectChange}
+                defaultValue={formData.theme}
+              >
+                <SelectTrigger className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue">
+                  <SelectValue placeholder="Selecione um tema" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="light">Tema Claro (Light Theme)</SelectItem>
+                  <SelectItem value="dark">Tema Escuro (Dark Theme)</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             
             {/* Campo: Depoimentos */}
@@ -308,12 +359,10 @@ const BriefingForm = () => {
               <input
                 id="logo"
                 type="file"
+                ref={logoRef}
                 accept="image/*"
                 className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue"
               />
-              <p className="text-xs text-gray-500 mt-1">
-                Para envio de arquivos, salve primeiro o formulário e depois nos envie pelo WhatsApp
-              </p>
             </div>
             
             {/* Campo: Upload de outras fotos */}
@@ -324,13 +373,11 @@ const BriefingForm = () => {
               <input
                 id="photos"
                 type="file"
+                ref={photosRef}
                 multiple
                 accept="image/*"
                 className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue"
               />
-              <p className="text-xs text-gray-500 mt-1">
-                Para envio de arquivos, salve primeiro o formulário e depois nos envie pelo WhatsApp
-              </p>
             </div>
             
             {/* Campo: Demais observações */}
@@ -344,6 +391,7 @@ const BriefingForm = () => {
                 className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue"
                 value={formData.observations}
                 onChange={handleChange}
+                placeholder="Caso deseje mais páginas além da landing page, inclua esta informação aqui"
               />
             </div>
             
