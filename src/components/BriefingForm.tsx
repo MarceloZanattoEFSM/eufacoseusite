@@ -13,7 +13,6 @@ import {
 
 const BriefingForm = () => {
   const { toast } = useToast();
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -33,15 +32,16 @@ const BriefingForm = () => {
     termsAccepted: false
   });
   
-  // Form refs para os campos de upload
-  const logoRef = React.useRef<HTMLInputElement>(null);
-  const photosRef = React.useRef<HTMLInputElement>(null);
-  
   // Load form data from localStorage on component mount
   useEffect(() => {
     const savedData = localStorage.getItem('briefingFormData');
     if (savedData) {
-      setFormData(JSON.parse(savedData));
+      try {
+        const parsedData = JSON.parse(savedData);
+        setFormData(parsedData);
+      } catch (error) {
+        console.error("Error parsing saved form data:", error);
+      }
     }
   }, []);
   
@@ -63,7 +63,7 @@ const BriefingForm = () => {
     setFormData({ ...formData, termsAccepted: checked });
   };
   
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!formData.termsAccepted) {
@@ -75,58 +75,13 @@ const BriefingForm = () => {
       return;
     }
     
-    setIsSubmitting(true);
+    // Get the form element and submit it directly
+    const form = document.getElementById('briefingForm') as HTMLFormElement;
+    form.submit();
     
-    try {
-      // Criar um FormData para envio de arquivos
-      const formDataToSend = new FormData();
-      
-      // Adicionar todos os campos do formulário ao FormData
-      Object.entries(formData).forEach(([key, value]) => {
-        formDataToSend.append(key, value as string);
-      });
-      
-      // Adicionar arquivos se existirem
-      if (logoRef.current?.files && logoRef.current.files[0]) {
-        formDataToSend.append('logo', logoRef.current.files[0]);
-      }
-      
-      if (photosRef.current?.files && photosRef.current.files.length > 0) {
-        Array.from(photosRef.current.files).forEach((file, index) => {
-          formDataToSend.append(`photo_${index}`, file);
-        });
-      }
-      
-      // Send data to the webhook
-      const response = await fetch('https://hook.us1.make.com/fyrsrjek2fwshgqk56xyf49540hga4w1', {
-        method: 'POST',
-        body: formDataToSend, // Enviando FormData em vez de JSON
-      });
-      
-      if (response.ok) {
-        // Clear localStorage after successful submission
-        localStorage.removeItem('briefingFormData');
-        
-        // Show success toast
-        toast({
-          title: "Briefing enviado com sucesso!",
-          description: "Logo entraremos em contato com você.",
-        });
-        
-        // Show success message
-        setFormSubmitted(true);
-      } else {
-        throw new Error('Falha ao enviar o formulário');
-      }
-    } catch (error) {
-      toast({
-        title: "Erro ao enviar",
-        description: "Houve um problema ao enviar seu briefing. Seus dados foram salvos localmente.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
+    // Clear localStorage and update state to show success message
+    localStorage.removeItem('briefingFormData');
+    setFormSubmitted(true);
   };
 
   if (formSubmitted) {
@@ -156,7 +111,14 @@ const BriefingForm = () => {
           <p className="text-xl text-gray-600">Preencha o briefing abaixo e a gente começa hoje mesmo.</p>
         </div>
         
-        <form onSubmit={handleSubmit} className="bg-white shadow-md rounded-lg p-6 md:p-8" encType="multipart/form-data">
+        <form 
+          id="briefingForm"
+          onSubmit={handleFormSubmit}
+          action="https://hook.us1.make.com/fyrsrjek2fwshgqk56xyf49540hga4w1" 
+          method="POST" 
+          encType="multipart/form-data"
+          className="bg-white shadow-md rounded-lg p-6 md:p-8"
+        >
           <div className="space-y-6">
             {/* Campo: Nome da Empresa/Pessoa */}
             <div>
@@ -165,6 +127,7 @@ const BriefingForm = () => {
               </label>
               <input
                 id="name"
+                name="name"
                 type="text"
                 className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue"
                 required
@@ -180,6 +143,7 @@ const BriefingForm = () => {
               </label>
               <textarea
                 id="description"
+                name="description"
                 rows={4}
                 className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue"
                 required
@@ -195,6 +159,7 @@ const BriefingForm = () => {
               </label>
               <textarea
                 id="colors"
+                name="colors"
                 rows={3}
                 className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue"
                 value={formData.colors}
@@ -219,6 +184,8 @@ const BriefingForm = () => {
                   <SelectItem value="dark">Tema Escuro (Dark Theme)</SelectItem>
                 </SelectContent>
               </Select>
+              {/* Hidden input to store the theme value for form submission */}
+              <input type="hidden" name="theme" value={formData.theme} />
             </div>
             
             {/* Campo: Depoimentos */}
@@ -228,6 +195,7 @@ const BriefingForm = () => {
               </label>
               <textarea
                 id="testimonials"
+                name="testimonials"
                 rows={3}
                 className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue"
                 value={formData.testimonials}
@@ -242,6 +210,7 @@ const BriefingForm = () => {
               </label>
               <textarea
                 id="services"
+                name="services"
                 rows={3}
                 className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue"
                 required
@@ -257,6 +226,7 @@ const BriefingForm = () => {
               </label>
               <textarea
                 id="socialMedia"
+                name="socialMedia"
                 rows={3}
                 className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue"
                 value={formData.socialMedia}
@@ -272,6 +242,7 @@ const BriefingForm = () => {
               </label>
               <textarea
                 id="faq"
+                name="faq"
                 rows={3}
                 className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue"
                 value={formData.faq}
@@ -286,6 +257,7 @@ const BriefingForm = () => {
               </label>
               <textarea
                 id="benefits"
+                name="benefits"
                 rows={3}
                 className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue"
                 value={formData.benefits}
@@ -300,6 +272,7 @@ const BriefingForm = () => {
               </label>
               <textarea
                 id="address"
+                name="address"
                 rows={2}
                 className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue"
                 value={formData.address}
@@ -314,6 +287,7 @@ const BriefingForm = () => {
               </label>
               <input
                 id="whatsapp"
+                name="whatsapp"
                 type="tel"
                 className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue"
                 required
@@ -329,6 +303,7 @@ const BriefingForm = () => {
               </label>
               <input
                 id="email"
+                name="email"
                 type="email"
                 className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue"
                 required
@@ -344,6 +319,7 @@ const BriefingForm = () => {
               </label>
               <input
                 id="cnpj"
+                name="cnpj"
                 type="text"
                 className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue"
                 value={formData.cnpj}
@@ -358,8 +334,8 @@ const BriefingForm = () => {
               </label>
               <input
                 id="logo"
+                name="logo"
                 type="file"
-                ref={logoRef}
                 accept="image/*"
                 className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue"
               />
@@ -372,8 +348,8 @@ const BriefingForm = () => {
               </label>
               <input
                 id="photos"
+                name="photos"
                 type="file"
-                ref={photosRef}
                 multiple
                 accept="image/*"
                 className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue"
@@ -387,6 +363,7 @@ const BriefingForm = () => {
               </label>
               <textarea
                 id="observations"
+                name="observations"
                 rows={4}
                 className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue"
                 value={formData.observations}
@@ -408,16 +385,17 @@ const BriefingForm = () => {
               >
                 Concordo com os <Link to="/terms" className="text-eufaco-blue hover:underline" target="_blank">termos de aceite</Link> *
               </label>
+              {/* Hidden input to store the terms acceptance value for form submission */}
+              <input type="hidden" name="termsAccepted" value={formData.termsAccepted ? "yes" : "no"} />
             </div>
             
             {/* Botão de envio */}
             <div className="pt-4">
               <button
                 type="submit"
-                disabled={isSubmitting}
                 className="w-full btn-primary text-lg py-4"
               >
-                {isSubmitting ? "Enviando..." : "Enviar briefing"}
+                Enviar briefing
               </button>
               
               {/* Mensagem após o formulário */}
