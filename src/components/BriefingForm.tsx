@@ -32,6 +32,10 @@ const BriefingForm = () => {
     termsAccepted: false
   });
   
+  // For file uploads
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [photosFiles, setPhotosFiles] = useState<FileList | null>(null);
+  
   // Load form data from localStorage on component mount
   useEffect(() => {
     const savedData = localStorage.getItem('briefingFormData');
@@ -63,7 +67,26 @@ const BriefingForm = () => {
     setFormData({ ...formData, termsAccepted: checked });
   };
   
-  const handleFormSubmit = (e: React.FormEvent) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, files } = e.target;
+    if (id === 'logo' && files && files.length > 0) {
+      setLogoFile(files[0]);
+    } else if (id === 'photos' && files && files.length > 0) {
+      setPhotosFiles(files);
+    }
+  };
+
+  // Convert a file to base64
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = error => reject(error);
+    });
+  };
+  
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!formData.termsAccepted) {
@@ -74,14 +97,65 @@ const BriefingForm = () => {
       });
       return;
     }
-    
-    // Get the form element and submit it directly
-    const form = document.getElementById('briefingForm') as HTMLFormElement;
-    form.submit();
-    
-    // Clear localStorage and update state to show success message
-    localStorage.removeItem('briefingFormData');
-    setFormSubmitted(true);
+
+    try {
+      // Create a data object to send
+      const dataToSend = { ...formData };
+      
+      // Convert logo to base64 if exists
+      if (logoFile) {
+        try {
+          const logoBase64 = await fileToBase64(logoFile);
+          dataToSend.logo = logoBase64;
+        } catch (error) {
+          console.error("Error converting logo to base64:", error);
+        }
+      }
+      
+      // Convert photos to base64 if exists
+      if (photosFiles) {
+        const photosBase64: string[] = [];
+        for (let i = 0; i < photosFiles.length; i++) {
+          try {
+            const photoBase64 = await fileToBase64(photosFiles[i]);
+            photosBase64.push(photoBase64);
+          } catch (error) {
+            console.error(`Error converting photo ${i} to base64:`, error);
+          }
+        }
+        if (photosBase64.length > 0) {
+          dataToSend.photos = photosBase64;
+        }
+      }
+      
+      // Send the data to the webhook
+      const response = await fetch('https://hook.us1.make.com/fyrsrjek2fwshgqk56xyf49540hga4w1', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(dataToSend),
+      });
+      
+      if (response.ok) {
+        // Clear localStorage and update state to show success message
+        localStorage.removeItem('briefingFormData');
+        setFormSubmitted(true);
+      } else {
+        toast({
+          title: "Erro ao enviar formulário",
+          description: "Houve um problema ao enviar o formulário. Por favor, tente novamente.",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      toast({
+        title: "Erro ao enviar formulário",
+        description: "Houve um problema ao enviar o formulário. Por favor, tente novamente.",
+        variant: "destructive"
+      });
+    }
   };
 
   if (formSubmitted) {
@@ -114,9 +188,6 @@ const BriefingForm = () => {
         <form 
           id="briefingForm"
           onSubmit={handleFormSubmit}
-          action="https://hook.us1.make.com/fyrsrjek2fwshgqk56xyf49540hga4w1" 
-          method="POST" 
-          encType="multipart/form-data"
           className="bg-white shadow-md rounded-lg p-6 md:p-8"
         >
           <div className="space-y-6">
@@ -184,8 +255,6 @@ const BriefingForm = () => {
                   <SelectItem value="dark">Tema Escuro (Dark Theme)</SelectItem>
                 </SelectContent>
               </Select>
-              {/* Hidden input to store the theme value for form submission */}
-              <input type="hidden" name="theme" value={formData.theme} />
             </div>
             
             {/* Campo: Depoimentos */}
@@ -338,6 +407,7 @@ const BriefingForm = () => {
                 type="file"
                 accept="image/*"
                 className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue"
+                onChange={handleFileChange}
               />
             </div>
             
@@ -353,6 +423,7 @@ const BriefingForm = () => {
                 multiple
                 accept="image/*"
                 className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue"
+                onChange={handleFileChange}
               />
             </div>
             
@@ -385,8 +456,6 @@ const BriefingForm = () => {
               >
                 Concordo com os <Link to="/terms" className="text-eufaco-blue hover:underline" target="_blank">termos de aceite</Link> *
               </label>
-              {/* Hidden input to store the terms acceptance value for form submission */}
-              <input type="hidden" name="termsAccepted" value={formData.termsAccepted ? "yes" : "no"} />
             </div>
             
             {/* Botão de envio */}
