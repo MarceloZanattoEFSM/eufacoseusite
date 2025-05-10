@@ -10,6 +10,7 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select";
+import { Facebook, Instagram, Linkedin, Twitter, Share } from 'lucide-react';
 
 const BriefingForm = () => {
   const { toast } = useToast();
@@ -37,6 +38,8 @@ const BriefingForm = () => {
   // For file uploads
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [photosFiles, setPhotosFiles] = useState<FileList | null>(null);
+  const [photoFileError, setPhotoFileError] = useState('');
+  const [logoFileError, setLogoFileError] = useState('');
   
   // Load form data from localStorage on component mount
   useEffect(() => {
@@ -69,12 +72,50 @@ const BriefingForm = () => {
     setFormData({ ...formData, termsAccepted: checked });
   };
   
+  const validateFileSize = (file: File, maxSizeKB: number = 500): boolean => {
+    const fileSizeKB = file.size / 1024;
+    return fileSizeKB <= maxSizeKB;
+  };
+  
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, files } = e.target;
+    
     if (id === 'logo' && files && files.length > 0) {
-      setLogoFile(files[0]);
+      const file = files[0];
+      if (!validateFileSize(file)) {
+        setLogoFileError('O arquivo deve ter no máximo 500KB');
+        setLogoFile(null);
+        e.target.value = '';
+      } else {
+        setLogoFileError('');
+        setLogoFile(file);
+      }
     } else if (id === 'photos' && files && files.length > 0) {
-      setPhotosFiles(files);
+      // Check if user selected more than 2 files
+      if (files.length > 2) {
+        setPhotoFileError('Selecione no máximo 2 fotos');
+        setPhotosFiles(null);
+        e.target.value = '';
+        return;
+      }
+      
+      // Check file sizes
+      let oversizedFiles = false;
+      for (let i = 0; i < files.length; i++) {
+        if (!validateFileSize(files[i])) {
+          oversizedFiles = true;
+          break;
+        }
+      }
+      
+      if (oversizedFiles) {
+        setPhotoFileError('Cada arquivo deve ter no máximo 500KB');
+        setPhotosFiles(null);
+        e.target.value = '';
+      } else {
+        setPhotoFileError('');
+        setPhotosFiles(files);
+      }
     }
   };
 
@@ -157,6 +198,41 @@ const BriefingForm = () => {
         description: "Houve um problema ao enviar o formulário. Por favor, tente novamente.",
         variant: "destructive"
       });
+    }
+  };
+  
+  // Share the page on various social media platforms
+  const shareUrl = window.location.href;
+  const shareTitle = "eufacoseu.site | Seu site pronto em até 2 dias";
+  
+  const handleShare = (platform: string) => {
+    let shareLink = '';
+    
+    switch (platform) {
+      case 'facebook':
+        shareLink = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
+        break;
+      case 'twitter':
+        shareLink = `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareTitle)}`;
+        break;
+      case 'linkedin':
+        shareLink = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`;
+        break;
+      case 'whatsapp':
+        shareLink = `https://api.whatsapp.com/send?text=${encodeURIComponent(`${shareTitle} ${shareUrl}`)}`;
+        break;
+      default:
+        if (navigator.share) {
+          navigator.share({
+            title: shareTitle,
+            url: shareUrl
+          }).catch(err => console.error('Error sharing:', err));
+          return;
+        }
+    }
+    
+    if (shareLink) {
+      window.open(shareLink, '_blank', 'noopener,noreferrer');
     }
   };
 
@@ -411,12 +487,14 @@ const BriefingForm = () => {
                 className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue"
                 onChange={handleFileChange}
               />
+              {logoFileError && <p className="text-red-500 text-sm mt-1">{logoFileError}</p>}
+              <p className="text-gray-500 text-xs mt-1">Tamanho máximo: 500KB</p>
             </div>
             
             {/* Campo: Upload de outras fotos */}
             <div>
               <label htmlFor="photos" className="block text-sm font-medium mb-1">
-                Upload de outras fotos
+                Upload de outras fotos (máximo 2)
               </label>
               <input
                 id="photos"
@@ -427,6 +505,9 @@ const BriefingForm = () => {
                 className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue"
                 onChange={handleFileChange}
               />
+              {photoFileError && <p className="text-red-500 text-sm mt-1">{photoFileError}</p>}
+              <p className="text-gray-500 text-xs mt-1">Tamanho máximo por foto: 500KB</p>
+              <p className="text-gray-500 text-sm mt-2 italic">Obs.: Se quiser subir mais fotos, coloque nas observações que deseja isso, que nossa equipe entrará em contato para solicitar</p>
             </div>
             
             {/* Campo: Demais observações */}
@@ -476,6 +557,41 @@ const BriefingForm = () => {
             </div>
           </div>
         </form>
+        
+        {/* Social Share Buttons */}
+        <div className="my-12 text-center">
+          <p className="text-gray-700 mb-4">Compartilhe nossa página com alguém!</p>
+          <div className="flex justify-center gap-4">
+            <button 
+              onClick={() => handleShare('facebook')} 
+              className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+              aria-label="Compartilhar no Facebook"
+            >
+              <Facebook className="text-[#1877F2]" />
+            </button>
+            <button 
+              onClick={() => handleShare('twitter')} 
+              className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+              aria-label="Compartilhar no Twitter"
+            >
+              <Twitter className="text-[#1DA1F2]" />
+            </button>
+            <button 
+              onClick={() => handleShare('linkedin')} 
+              className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+              aria-label="Compartilhar no LinkedIn"
+            >
+              <Linkedin className="text-[#0A66C2]" />
+            </button>
+            <button 
+              onClick={() => handleShare('default')} 
+              className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+              aria-label="Compartilhar em outras redes"
+            >
+              <Share className="text-gray-700" />
+            </button>
+          </div>
+        </div>
       </div>
     </section>
   );
