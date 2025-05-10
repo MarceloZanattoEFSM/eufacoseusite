@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select";
-import { Facebook, Instagram, Linkedin, Twitter, Share } from 'lucide-react';
+import { Facebook, Instagram, Linkedin, Twitter, Share, MessageCircle } from 'lucide-react';
 
 const BriefingForm = () => {
   const { toast } = useToast();
@@ -582,6 +582,13 @@ const BriefingForm = () => {
               aria-label="Compartilhar no LinkedIn"
             >
               <Linkedin className="text-[#0A66C2]" />
+            </button>
+            <button 
+              onClick={() => handleShare('whatsapp')} 
+              className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+              aria-label="Compartilhar no WhatsApp"
+            >
+              <MessageCircle className="text-[#25D366]" />
             </button>
             <button 
               onClick={() => handleShare('default')} 
