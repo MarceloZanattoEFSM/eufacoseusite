@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Checkbox } from "@/components/ui/checkbox";
@@ -216,6 +215,7 @@ const BriefingForm = () => {
         shareLink = `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareTitle)}`;
         break;
       case 'linkedin':
+        // Fixed LinkedIn sharing URL format
         shareLink = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`;
         break;
       case 'whatsapp':
@@ -558,8 +558,8 @@ const BriefingForm = () => {
           </div>
         </form>
         
-        {/* Social Share Buttons */}
-        <div className="my-12 text-center">
+        {/* Social Share Buttons - Reduced spacing from my-12 to my-8 */}
+        <div className="my-8 text-center">
           <p className="text-gray-700 mb-4">Compartilhe nossa página com alguém!</p>
           <div className="flex justify-center gap-4">
             <button 

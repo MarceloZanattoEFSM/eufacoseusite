@@ -12,6 +12,8 @@ const WhatsAppButton = () => {
     const formFields = document.querySelectorAll('#briefing input, #briefing textarea');
     const handleFormInteraction = () => {
       setFormStarted(true);
+      // Stop pulsing immediately when the form is interacted with
+      setIsPulsing(false);
     };
 
     formFields.forEach(field => {
