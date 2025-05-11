@@ -2,17 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Checkbox } from "@/components/ui/checkbox";
 import { Link } from "react-router-dom";
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Facebook, Instagram, Linkedin, Twitter, Share, MessageCircle } from 'lucide-react';
-
 const BriefingForm = () => {
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -33,13 +28,13 @@ const BriefingForm = () => {
     logo: '',
     photos: [] as string[]
   });
-  
+
   // For file uploads
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [photosFiles, setPhotosFiles] = useState<FileList | null>(null);
   const [photoFileError, setPhotoFileError] = useState('');
   const [logoFileError, setLogoFileError] = useState('');
-  
+
   // Load form data from localStorage on component mount
   useEffect(() => {
     const savedData = localStorage.getItem('briefingFormData');
@@ -52,33 +47,42 @@ const BriefingForm = () => {
       }
     }
   }, []);
-  
+
   // Save form data to localStorage whenever it changes
   useEffect(() => {
     localStorage.setItem('briefingFormData', JSON.stringify(formData));
   }, [formData]);
-  
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { id, value } = e.target;
-    setFormData({ ...formData, [id]: value });
+    const {
+      id,
+      value
+    } = e.target;
+    setFormData({
+      ...formData,
+      [id]: value
+    });
   };
-  
   const handleSelectChange = (value: string) => {
-    setFormData({ ...formData, theme: value });
+    setFormData({
+      ...formData,
+      theme: value
+    });
   };
-  
   const handleCheckboxChange = (checked: boolean) => {
-    setFormData({ ...formData, termsAccepted: checked });
+    setFormData({
+      ...formData,
+      termsAccepted: checked
+    });
   };
-  
   const validateFileSize = (file: File, maxSizeKB: number = 500): boolean => {
     const fileSizeKB = file.size / 1024;
     return fileSizeKB <= maxSizeKB;
   };
-  
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { id, files } = e.target;
-    
+    const {
+      id,
+      files
+    } = e.target;
     if (id === 'logo' && files && files.length > 0) {
       const file = files[0];
       if (!validateFileSize(file)) {
@@ -97,7 +101,7 @@ const BriefingForm = () => {
         e.target.value = '';
         return;
       }
-      
+
       // Check file sizes
       let oversizedFiles = false;
       for (let i = 0; i < files.length; i++) {
@@ -106,7 +110,6 @@ const BriefingForm = () => {
           break;
         }
       }
-      
       if (oversizedFiles) {
         setPhotoFileError('Cada arquivo deve ter no máximo 500KB');
         setPhotosFiles(null);
@@ -127,10 +130,8 @@ const BriefingForm = () => {
       reader.onerror = error => reject(error);
     });
   };
-  
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!formData.termsAccepted) {
       toast({
         title: "Termo de aceite obrigatório",
@@ -139,11 +140,12 @@ const BriefingForm = () => {
       });
       return;
     }
-
     try {
       // Create a data object to send
-      const dataToSend = { ...formData };
-      
+      const dataToSend = {
+        ...formData
+      };
+
       // Convert logo to base64 if exists
       if (logoFile) {
         try {
@@ -153,7 +155,7 @@ const BriefingForm = () => {
           console.error("Error converting logo to base64:", error);
         }
       }
-      
+
       // Convert photos to base64 if exists
       if (photosFiles) {
         const photosBase64: string[] = [];
@@ -169,16 +171,15 @@ const BriefingForm = () => {
           dataToSend.photos = photosBase64;
         }
       }
-      
+
       // Send the data to the webhook
       const response = await fetch('https://hook.us1.make.com/fyrsrjek2fwshgqk56xyf49540hga4w1', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
-        body: JSON.stringify(dataToSend),
+        body: JSON.stringify(dataToSend)
       });
-      
       if (response.ok) {
         // Clear localStorage and update state to show success message
         localStorage.removeItem('briefingFormData');
@@ -199,14 +200,12 @@ const BriefingForm = () => {
       });
     }
   };
-  
+
   // Share the page on various social media platforms
   const shareUrl = window.location.href;
   const shareTitle = "eufacoseu.site | Seu site pronto em até 2 dias";
-  
   const handleShare = (platform: string) => {
     let shareLink = '';
-    
     switch (platform) {
       case 'facebook':
         shareLink = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
@@ -230,15 +229,12 @@ const BriefingForm = () => {
           return;
         }
     }
-    
     if (shareLink) {
       window.open(shareLink, '_blank', 'noopener,noreferrer');
     }
   };
-
   if (formSubmitted) {
-    return (
-      <section id="briefing" className="section">
+    return <section id="briefing" className="section">
         <div className="max-w-3xl mx-auto">
           <div className="bg-white shadow-md rounded-lg p-8 text-center">
             <h2 className="heading-lg mb-6">Obrigado pelo seu briefing!</h2>
@@ -251,38 +247,23 @@ const BriefingForm = () => {
             </div>
           </div>
         </div>
-      </section>
-    );
+      </section>;
   }
-
-  return (
-    <section id="briefing" className="section">
+  return <section id="briefing" className="section">
       <div className="max-w-3xl mx-auto">
         <div className="text-center mb-10">
           <h2 className="heading-lg mb-2">Pronto pra ter seu site?</h2>
           <p className="text-xl text-gray-600">Preencha o briefing abaixo e a gente começa hoje mesmo.</p>
         </div>
         
-        <form 
-          id="briefingForm"
-          onSubmit={handleFormSubmit}
-          className="bg-white shadow-md rounded-lg p-6 md:p-8"
-        >
+        <form id="briefingForm" onSubmit={handleFormSubmit} className="bg-white shadow-md rounded-lg p-6 md:p-8">
           <div className="space-y-6">
             {/* Campo: Nome da Empresa/Pessoa */}
             <div>
               <label htmlFor="name" className="block text-sm font-medium mb-1">
                 Nome da Empresa/Pessoa *
               </label>
-              <input
-                id="name"
-                name="name"
-                type="text"
-                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue"
-                required
-                value={formData.name}
-                onChange={handleChange}
-              />
+              <input id="name" name="name" type="text" className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue" required value={formData.name} onChange={handleChange} />
             </div>
             
             {/* Campo: Breve descrição */}
@@ -290,15 +271,7 @@ const BriefingForm = () => {
               <label htmlFor="description" className="block text-sm font-medium mb-1">
                 Breve descrição do que se trata *
               </label>
-              <textarea
-                id="description"
-                name="description"
-                rows={4}
-                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue"
-                required
-                value={formData.description}
-                onChange={handleChange}
-              />
+              <textarea id="description" name="description" rows={4} className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue" required value={formData.description} onChange={handleChange} />
             </div>
             
             {/* Campo: Cores e Identidade visual */}
@@ -306,14 +279,7 @@ const BriefingForm = () => {
               <label htmlFor="colors" className="block text-sm font-medium mb-1">
                 Cores e Identidade visual de preferência (opcional)
               </label>
-              <textarea
-                id="colors"
-                name="colors"
-                rows={3}
-                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue"
-                value={formData.colors}
-                onChange={handleChange}
-              />
+              <textarea id="colors" name="colors" rows={3} className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue" value={formData.colors} onChange={handleChange} />
             </div>
             
             {/* Campo: Preferência de Tema */}
@@ -321,10 +287,7 @@ const BriefingForm = () => {
               <label htmlFor="theme" className="block text-sm font-medium mb-1">
                 Preferência de tema
               </label>
-              <Select
-                onValueChange={handleSelectChange}
-                defaultValue={formData.theme}
-              >
+              <Select onValueChange={handleSelectChange} defaultValue={formData.theme}>
                 <SelectTrigger className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue">
                   <SelectValue placeholder="Selecione um tema" />
                 </SelectTrigger>
@@ -340,14 +303,7 @@ const BriefingForm = () => {
               <label htmlFor="testimonials" className="block text-sm font-medium mb-1">
                 Depoimentos (opcional)
               </label>
-              <textarea
-                id="testimonials"
-                name="testimonials"
-                rows={3}
-                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue"
-                value={formData.testimonials}
-                onChange={handleChange}
-              />
+              <textarea id="testimonials" name="testimonials" rows={3} className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue" value={formData.testimonials} onChange={handleChange} />
             </div>
             
             {/* Campo: Serviços/Produtos */}
@@ -355,15 +311,7 @@ const BriefingForm = () => {
               <label htmlFor="services" className="block text-sm font-medium mb-1">
                 Serviços/Produtos *
               </label>
-              <textarea
-                id="services"
-                name="services"
-                rows={3}
-                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue"
-                required
-                value={formData.services}
-                onChange={handleChange}
-              />
+              <textarea id="services" name="services" rows={3} className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue" required value={formData.services} onChange={handleChange} />
             </div>
             
             {/* Campo: Redes Sociais */}
@@ -371,15 +319,7 @@ const BriefingForm = () => {
               <label htmlFor="socialMedia" className="block text-sm font-medium mb-1">
                 Redes Sociais (opcional)
               </label>
-              <textarea
-                id="socialMedia"
-                name="socialMedia"
-                rows={3}
-                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue"
-                value={formData.socialMedia}
-                onChange={handleChange}
-                placeholder="Instagram: @suaconta, Facebook: /suapagina, etc."
-              />
+              <textarea id="socialMedia" name="socialMedia" rows={3} className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue" value={formData.socialMedia} onChange={handleChange} placeholder="Instagram: @suaconta, Facebook: /suapagina, etc." />
             </div>
             
             {/* Campo: Perguntas Frequentes */}
@@ -387,14 +327,7 @@ const BriefingForm = () => {
               <label htmlFor="faq" className="block text-sm font-medium mb-1">
                 Perguntas Frequentes
               </label>
-              <textarea
-                id="faq"
-                name="faq"
-                rows={3}
-                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue"
-                value={formData.faq}
-                onChange={handleChange}
-              />
+              <textarea id="faq" name="faq" rows={3} className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue" value={formData.faq} onChange={handleChange} />
             </div>
             
             {/* Campo: Benefícios */}
@@ -402,14 +335,7 @@ const BriefingForm = () => {
               <label htmlFor="benefits" className="block text-sm font-medium mb-1">
                 Benefícios
               </label>
-              <textarea
-                id="benefits"
-                name="benefits"
-                rows={3}
-                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue"
-                value={formData.benefits}
-                onChange={handleChange}
-              />
+              <textarea id="benefits" name="benefits" rows={3} className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue" value={formData.benefits} onChange={handleChange} />
             </div>
             
             {/* Campo: Endereço (Novo campo) */}
@@ -417,14 +343,7 @@ const BriefingForm = () => {
               <label htmlFor="address" className="block text-sm font-medium mb-1">
                 Endereço (opcional)
               </label>
-              <textarea
-                id="address"
-                name="address"
-                rows={2}
-                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue"
-                value={formData.address}
-                onChange={handleChange}
-              />
+              <textarea id="address" name="address" rows={2} className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue" value={formData.address} onChange={handleChange} />
             </div>
             
             {/* Campo: Número WhatsApp */}
@@ -432,15 +351,7 @@ const BriefingForm = () => {
               <label htmlFor="whatsapp" className="block text-sm font-medium mb-1">
                 Número WhatsApp *
               </label>
-              <input
-                id="whatsapp"
-                name="whatsapp"
-                type="tel"
-                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue"
-                required
-                value={formData.whatsapp}
-                onChange={handleChange}
-              />
+              <input id="whatsapp" name="whatsapp" type="tel" className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue" required value={formData.whatsapp} onChange={handleChange} />
             </div>
             
             {/* Campo: E-mail */}
@@ -448,15 +359,7 @@ const BriefingForm = () => {
               <label htmlFor="email" className="block text-sm font-medium mb-1">
                 E-mail de contato *
               </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue"
-                required
-                value={formData.email}
-                onChange={handleChange}
-              />
+              <input id="email" name="email" type="email" className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue" required value={formData.email} onChange={handleChange} />
             </div>
             
             {/* Campo: CNPJ */}
@@ -464,14 +367,7 @@ const BriefingForm = () => {
               <label htmlFor="cnpj" className="block text-sm font-medium mb-1">
                 CNPJ (opcional)
               </label>
-              <input
-                id="cnpj"
-                name="cnpj"
-                type="text"
-                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue"
-                value={formData.cnpj}
-                onChange={handleChange}
-              />
+              <input id="cnpj" name="cnpj" type="text" className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue" value={formData.cnpj} onChange={handleChange} />
             </div>
             
             {/* Campo: Upload de logotipo */}
@@ -479,14 +375,7 @@ const BriefingForm = () => {
               <label htmlFor="logo" className="block text-sm font-medium mb-1">
                 Upload do logotipo
               </label>
-              <input
-                id="logo"
-                name="logo"
-                type="file"
-                accept="image/*"
-                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue"
-                onChange={handleFileChange}
-              />
+              <input id="logo" name="logo" type="file" accept="image/*" className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue" onChange={handleFileChange} />
               {logoFileError && <p className="text-red-500 text-sm mt-1">{logoFileError}</p>}
               <p className="text-gray-500 text-xs mt-1">Tamanho máximo: 500KB</p>
             </div>
@@ -496,15 +385,7 @@ const BriefingForm = () => {
               <label htmlFor="photos" className="block text-sm font-medium mb-1">
                 Upload de outras fotos (máximo 2)
               </label>
-              <input
-                id="photos"
-                name="photos"
-                type="file"
-                multiple
-                accept="image/*"
-                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue"
-                onChange={handleFileChange}
-              />
+              <input id="photos" name="photos" type="file" multiple accept="image/*" className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue" onChange={handleFileChange} />
               {photoFileError && <p className="text-red-500 text-sm mt-1">{photoFileError}</p>}
               <p className="text-gray-500 text-xs mt-1">Tamanho máximo por foto: 500KB</p>
               <p className="text-gray-500 text-sm mt-2 italic">Obs.: Se quiser subir mais fotos, coloque nas observações que deseja isso, que nossa equipe entrará em contato para solicitar</p>
@@ -515,38 +396,20 @@ const BriefingForm = () => {
               <label htmlFor="observations" className="block text-sm font-medium mb-1">
                 Demais observações
               </label>
-              <textarea
-                id="observations"
-                name="observations"
-                rows={4}
-                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue"
-                value={formData.observations}
-                onChange={handleChange}
-                placeholder="Caso deseje mais páginas além da landing page, inclua esta informação aqui"
-              />
+              <textarea id="observations" name="observations" rows={4} className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-eufaco-blue focus:border-eufaco-blue" value={formData.observations} onChange={handleChange} placeholder="Caso deseje mais páginas além da landing page, inclua esta informação aqui" />
             </div>
             
             {/* Termo de Aceite */}
             <div className="flex items-start space-x-3 pt-2">
-              <Checkbox 
-                id="termsAccepted" 
-                checked={formData.termsAccepted}
-                onCheckedChange={handleCheckboxChange}
-              />
-              <label
-                htmlFor="termsAccepted"
-                className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              >
+              <Checkbox id="termsAccepted" checked={formData.termsAccepted} onCheckedChange={handleCheckboxChange} />
+              <label htmlFor="termsAccepted" className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                 Concordo com os <Link to="/terms" className="text-eufaco-blue hover:underline" target="_blank">termos de aceite</Link> *
               </label>
             </div>
             
             {/* Botão de envio */}
             <div className="pt-4">
-              <button
-                type="submit"
-                className="w-full btn-primary text-lg py-4"
-              >
+              <button type="submit" className="w-full btn-primary text-lg py-4">
                 Enviar briefing
               </button>
               
@@ -561,47 +424,25 @@ const BriefingForm = () => {
         {/* Social Share Buttons - Reduced spacing from my-12 to my-8 */}
         <div className="my-8 text-center">
           <p className="text-gray-700 mb-4">Compartilhe nossa página com alguém!</p>
-          <div className="flex justify-center gap-4">
-            <button 
-              onClick={() => handleShare('facebook')} 
-              className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-              aria-label="Compartilhar no Facebook"
-            >
+          <div className="flex justify-center gap-4 -mb-20">
+            <button onClick={() => handleShare('facebook')} className="p-2 rounded-full hover:bg-gray-100 transition-colors" aria-label="Compartilhar no Facebook">
               <Facebook className="text-[#1877F2]" />
             </button>
-            <button 
-              onClick={() => handleShare('twitter')} 
-              className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-              aria-label="Compartilhar no Twitter"
-            >
+            <button onClick={() => handleShare('twitter')} className="p-2 rounded-full hover:bg-gray-100 transition-colors" aria-label="Compartilhar no Twitter">
               <Twitter className="text-[#1DA1F2]" />
             </button>
-            <button 
-              onClick={() => handleShare('linkedin')} 
-              className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-              aria-label="Compartilhar no LinkedIn"
-            >
+            <button onClick={() => handleShare('linkedin')} className="p-2 rounded-full hover:bg-gray-100 transition-colors" aria-label="Compartilhar no LinkedIn">
               <Linkedin className="text-[#0A66C2]" />
             </button>
-            <button 
-              onClick={() => handleShare('whatsapp')} 
-              className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-              aria-label="Compartilhar no WhatsApp"
-            >
+            <button onClick={() => handleShare('whatsapp')} className="p-2 rounded-full hover:bg-gray-100 transition-colors" aria-label="Compartilhar no WhatsApp">
               <MessageCircle className="text-[#25D366]" />
             </button>
-            <button 
-              onClick={() => handleShare('default')} 
-              className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-              aria-label="Compartilhar em outras redes"
-            >
+            <button onClick={() => handleShare('default')} className="p-2 rounded-full hover:bg-gray-100 transition-colors" aria-label="Compartilhar em outras redes">
               <Share className="text-gray-700" />
             </button>
           </div>
         </div>
       </div>
-    </section>
-  );
+    </section>;
 };
-
 export default BriefingForm;
