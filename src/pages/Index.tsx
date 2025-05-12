@@ -14,7 +14,7 @@ import WhatsAppButton from '@/components/WhatsAppButton';
 const Index = () => {
   useEffect(() => {
     // Atualizar título da página
-    document.title = "eufacoseu.site | Seu site pronto em até 2 dias";
+    document.title = "Eu Faço Seu Site | Seu site pronto em até 2 dias, por apenas R$99,00!";
   }, []);
 
   return (
