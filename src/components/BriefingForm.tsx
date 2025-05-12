@@ -403,7 +403,7 @@ const BriefingForm = () => {
             <div className="flex items-start space-x-3 pt-2">
               <Checkbox id="termsAccepted" checked={formData.termsAccepted} onCheckedChange={handleCheckboxChange} />
               <label htmlFor="termsAccepted" className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                Concordo com os <Link to="/terms" className="text-eufaco-blue hover:underline" target="_blank">termos de aceite</Link> *
+                Concordo com os <Link to="/terms" className="text-eufaco-blue hover:underline">termos de aceite</Link> *
               </label>
             </div>
             
