@@ -75,8 +75,8 @@ const Terms = () => {
           </div>
           
           <div id="briefing" className="mt-10 text-center">
-            <Link to="/#briefing" className="btn-primary inline-block py-3 px-6">
-              Voltar para o formulário
+            <Link to="/" className="btn-primary inline-block py-3 px-6">
+              Voltar
             </Link>
           </div>
         </div>
