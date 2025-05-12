@@ -20,7 +20,7 @@ const Navbar = () => {
         <Link to="/" className="flex items-center">
           <img alt="eufacoseu.site" className="h-10 md:h-12" src="/lovable-uploads/b2f5f879-9cd6-40b8-8e98-6190d4377290.jpg" />
         </Link>
-        <Link to="/#briefing" className="btn-primary text-sm md:text-base">
+        <Link to="#briefing" className="btn-primary text-sm md:text-base">
           Quero meu site agora
         </Link>
       </div>
