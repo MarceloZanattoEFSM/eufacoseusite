@@ -4,11 +4,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Link } from "react-router-dom";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Facebook, Instagram, Linkedin, Twitter, Share, MessageCircle } from 'lucide-react';
+
 const BriefingForm = () => {
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
   const [formSubmitted, setFormSubmitted] = useState(false);
+  const [urlParams, setUrlParams] = useState<Record<string, string>>({});
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -35,6 +35,25 @@ const BriefingForm = () => {
   const [photoFileError, setPhotoFileError] = useState('');
   const [logoFileError, setLogoFileError] = useState('');
 
+  // Capture URL parameters on component mount
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const paramObject: Record<string, string> = {};
+    
+    // Collect all URL parameters
+    params.forEach((value, key) => {
+      paramObject[key] = value;
+    });
+    
+    // Also capture referrer if available
+    if (document.referrer) {
+      paramObject['referrer'] = document.referrer;
+    }
+    
+    setUrlParams(paramObject);
+    console.log("Captured URL parameters:", paramObject);
+  }, []);
+
   // Load form data from localStorage on component mount
   useEffect(() => {
     const savedData = localStorage.getItem('briefingFormData');
@@ -52,37 +71,36 @@ const BriefingForm = () => {
   useEffect(() => {
     localStorage.setItem('briefingFormData', JSON.stringify(formData));
   }, [formData]);
+  
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const {
-      id,
-      value
-    } = e.target;
+    const { id, value } = e.target;
     setFormData({
       ...formData,
       [id]: value
     });
   };
+  
   const handleSelectChange = (value: string) => {
     setFormData({
       ...formData,
       theme: value
     });
   };
+  
   const handleCheckboxChange = (checked: boolean) => {
     setFormData({
       ...formData,
       termsAccepted: checked
     });
   };
+  
   const validateFileSize = (file: File, maxSizeKB: number = 500): boolean => {
     const fileSizeKB = file.size / 1024;
     return fileSizeKB <= maxSizeKB;
   };
+  
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const {
-      id,
-      files
-    } = e.target;
+    const { id, files } = e.target;
     if (id === 'logo' && files && files.length > 0) {
       const file = files[0];
       if (!validateFileSize(file)) {
@@ -130,6 +148,7 @@ const BriefingForm = () => {
       reader.onerror = error => reject(error);
     });
   };
+  
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.termsAccepted) {
@@ -140,11 +159,15 @@ const BriefingForm = () => {
       });
       return;
     }
+    
     try {
-      // Create a data object to send
+      // Create a data object to send, including URL parameters
       const dataToSend = {
-        ...formData
+        ...formData,
+        urlParams: urlParams // Include all captured URL params
       };
+
+      console.log("Sending data with URL parameters:", dataToSend);
 
       // Convert logo to base64 if exists
       if (logoFile) {
@@ -180,6 +203,7 @@ const BriefingForm = () => {
         },
         body: JSON.stringify(dataToSend)
       });
+      
       if (response.ok) {
         // Clear localStorage and update state to show success message
         localStorage.removeItem('briefingFormData');
@@ -233,6 +257,7 @@ const BriefingForm = () => {
       window.open(shareLink, '_blank', 'noopener,noreferrer');
     }
   };
+  
   if (formSubmitted) {
     return <section id="briefing" className="section">
         <div className="max-w-3xl mx-auto">
@@ -249,6 +274,7 @@ const BriefingForm = () => {
         </div>
       </section>;
   }
+  
   return <section id="briefing" className="section">
       <div className="max-w-3xl mx-auto">
         <div className="text-center mb-10">
@@ -445,4 +471,5 @@ const BriefingForm = () => {
       </div>
     </section>;
 };
+
 export default BriefingForm;
