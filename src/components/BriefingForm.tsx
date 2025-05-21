@@ -259,7 +259,7 @@ const BriefingForm = () => {
   };
   
   if (formSubmitted) {
-    return <section id="briefing" className="section">
+    return <section id="briefing" className="section formEnviado">
         <div className="max-w-3xl mx-auto">
           <div className="bg-white shadow-md rounded-lg p-8 text-center">
             <h2 className="heading-lg mb-6">Obrigado pelo seu briefing!</h2>
